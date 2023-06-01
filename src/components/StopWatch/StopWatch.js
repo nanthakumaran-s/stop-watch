@@ -1,9 +1,11 @@
 import {
+  Box,
   Button,
   ButtonGroup,
   Flex,
   Heading,
   IconButton,
+  Text,
 } from "@chakra-ui/react";
 import {
   BsFillPlayFill,
@@ -18,7 +20,7 @@ const StopWatch = () => {
   const [isTimerStart, setIsTimerStart] = useState(false);
   const [startTime, setStartTime] = useState(0);
   const [timePassed, setTimePassed] = useState(0);
-  const [laps, setLaps] = useState([]);
+  const [snap, setSnap] = useState([]);
 
   useEffect(() => {
     let currentInterval;
@@ -26,6 +28,8 @@ const StopWatch = () => {
       currentInterval = setInterval(() => {
         setTimePassed(Date.now() - startTime);
       }, 100);
+    } else {
+      clearInterval(currentInterval);
     }
     return () => clearInterval(currentInterval);
   }, [isTimerStart, startTime]);
@@ -38,24 +42,29 @@ const StopWatch = () => {
   const handleStop = () => {
     setIsTimerStart(false);
     setTimePassed(0);
-    setLaps([]);
+    setSnap([]);
   };
 
   const handleReset = () => {
     setStartTime(Date.now());
     setTimePassed(0);
-    setLaps([]);
+    setSnap([]);
   };
 
   const handleLap = () => {
-    if (isTimerStart) setLaps([...laps, Date.now() - startTime]);
+    if (isTimerStart) setSnap([...snap, Date.now() - startTime]);
   };
 
   const format = (time) => {
-    const zeroAdder = (value) => value.toString().padStart(2, "0");
-    const seconds = zeroAdder(Math.floor((time / 1000) % 60));
-    const minutes = zeroAdder(Math.floor((time / (1000 * 60)) % 60));
-    const hours = zeroAdder(Math.floor(time / (1000 * 60 * 60)));
+    const seconds = Math.floor((time / 1000) % 60)
+      .toString()
+      .padStart(2, "0");
+    const minutes = Math.floor((time / (1000 * 60)) % 60)
+      .toString()
+      .padStart(2, "0");
+    const hours = Math.floor(time / (1000 * 60 * 60))
+      .toString()
+      .padStart(2, "0");
     return `${hours}:${minutes}:${seconds}`;
   };
 
@@ -101,6 +110,31 @@ const StopWatch = () => {
           icon={<BsCameraFill size={30} />}
         />
       </ButtonGroup>
+      <Flex
+        alignItems="center"
+        justifyContent="center"
+        gap="5"
+        width="60%"
+        wrap="wrap"
+      >
+        {snap.map((snap, i) => (
+          <Text
+            bg="gray.100"
+            px="5"
+            py="2"
+            fontSize="lg"
+            cursor="none"
+            _hover={{
+              bg: "gray.200",
+            }}
+            fontWeight="medium"
+            rounded="full"
+            key={i}
+          >
+            {format(snap)}
+          </Text>
+        ))}
+      </Flex>
     </Flex>
   );
 };
